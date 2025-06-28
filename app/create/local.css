@@ -4,8 +4,7 @@ table {
     background-color: #ddf6d200 !important;
 }
 select,
-input,
-textarea {
+input {
     color: #374151 !important;
     background-color: #ffffff !important;
 }
@@ -14,11 +13,17 @@ select option {
     color: #374151 !important;
     background-color: #fefefe !important;
 }
+.wmde-markdown {
+    background: none !important;
+}
+.w-md-editor,
+.w-md-editor-toolbar {
+    background: #fefefe !important;
+}
 /* Dark mode form elements */
 @media (prefers-color-scheme: dark) {
     select,
-    input,
-    textarea {
+    input {
         color: #d1d5db !important;
         background-color: #191919 !important;
         border-color: #808080 !important;
@@ -31,5 +36,12 @@ select option {
     table {
         color: #fefefe !important;
         background-color: #ddf6d200 !important;
+    }
+    .wmde-markdown {
+        background: none !important;
+    }
+    .w-md-editor,
+    .w-md-editor-toolbar {
+        background: #191919 !important;
     }
 }

@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import './local.css';
+import  MDEditor  from '@uiw/react-md-editor'
 
 type Post = {
     _id?: string;
@@ -18,7 +19,7 @@ export default function CreatePost() {
     const [posts, setPosts] = useState<Post[]>([]);
     const [postDraft, setPostDraft] = useState<Post>({
         title: '',
-        content: '',
+        content: 'Write your content here...',
         author: '',
         status: 'draft',
         views: 0,
@@ -80,7 +81,7 @@ export default function CreatePost() {
             // Reset form
             setPostDraft({
                 title: '',
-                content: '',
+                content: 'Write your content here...',
                 author: '',
                 status: 'draft',
                 views: 0,
@@ -95,14 +96,22 @@ export default function CreatePost() {
         }
     };
 
+    const handleMDEditorChange = (value: string | undefined) => {
+        setPostDraft((prev) => ({
+            ...prev,
+            content: value || '',
+        }));
+    };
+
+
     const tableHeader =
-        'align-text-top text-left p-4 whitespace-nowrap min-w-32 text-gray-200';
+        'align-text-top text-left p-4 whitespace-nowrap min-w-32 text-gray-300 hidden sm:table-cell';
     const inputClass =
-        'border border-gray-300 rounded p-2 m-2 text-gray-900 bg-white focus:border-gray-500 focus:outline-none';
+        'border border-gray-500 rounded p-2 m-2 text-gray-900 bg-white focus:border-gray-700';
 
     return (
         <div className="max-w-4xl mx-auto p-3 sm:p-4 lg:p-6">
-            <h1 className="text-center text-4xl font-serif mt-5 mb-8">Form</h1>
+            <h1 className="text-center text-4xl font-serif mt-5 mb-8">Create Post</h1>
             <form
                 onSubmit={handleSubmit}
                 className="border drop-shadow-lg rounded-lg p-2 pb-4 pr-4 sm:p-6  border-gray-700"
@@ -111,9 +120,10 @@ export default function CreatePost() {
                 <table className="w-full border-collapse">
                     <tbody>
                         <tr>
-                            <th className={`${tableHeader} w-1/4`}>Title :</th>
+                            <th className={`${tableHeader} w-1/4`}><label htmlFor='title'>Title :</label></th>
                             <td className="p-2">
                                 <input
+                                    id='title'
                                     type="text"
                                     name="title"
                                     value={postDraft.title}
@@ -129,14 +139,12 @@ export default function CreatePost() {
                                 Content :
                             </th>
                             <td className="p-2">
-                                <textarea
-                                    name="content"
+                                <MDEditor
                                     value={postDraft.content}
-                                    onChange={handleInputChange}
-                                    className={`${inputClass} w-full resize-vertical`}
-                                    placeholder="Enter Post Content"
-                                    required
-                                    rows={6}
+                                    onChange={handleMDEditorChange}
+                                    // data-color-mode="light"
+                                    height={310}
+                                    className={`border border-gray-400 rounded p-2 m-2 text-gray-900 w-full`}
                                 />
                             </td>
                         </tr>
@@ -235,9 +243,7 @@ export default function CreatePost() {
                                 <h4 className="text-xl font-semibold mb-2">
                                     {post.title}
                                 </h4>
-                                <p className="whitespace-pre-wrap mb-3 text-gray-300">
-                                    {post.content}
-                                </p>
+                                <MDEditor.Markdown source={post.content} className='rounded w-full pt-1 pb-3 mb-3 mt-1' />
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm text-gray-400">
                                     <p>
                                         <strong>Author:</strong>{' '}
