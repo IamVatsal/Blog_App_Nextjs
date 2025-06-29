@@ -1,11 +1,8 @@
-'use client';
-import { useEffect, useState, use } from 'react';
 import Comments from '@/components/ui/Comments';
-import { NextApiRequest } from 'next';
-import Post from '@/components/ui/Post';
-import { useSession } from 'next-auth/react';
-import PostForm from '@/components/ui/PostForm';
+import PostServer from '@/components/ui/PostServer';
 import { notFound } from 'next/navigation';
+import dbConnect from '@/lib/mongoose';
+import { Post as PostModel } from '@/models/post';
 
 
 type IPost = {

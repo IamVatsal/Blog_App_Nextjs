@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import './local.css';
 import MDEditor from '@uiw/react-md-editor';
+import { useSession } from 'next-auth/react';
 
 type Post = {
     _id?: string;
@@ -15,10 +16,11 @@ type Post = {
 };
 
 export default function CreatePost() {
+    const { data: session, status } = useSession();
     const [postDraft, setPostDraft] = useState<Post>({
         title: '',
         content: 'Write your content here...',
-        author: '',
+        author: session?.user?.name || '',
         status: 'draft',
         isPublished: false,
     });
@@ -72,10 +74,11 @@ export default function CreatePost() {
             setPostDraft({
                 title: '',
                 content: 'Write your content here...',
-                author: '',
+                author: session?.user?.name || '',
                 status: 'draft',
                 isPublished: false,
             });
+
             alert('Post created successfully!');
         } catch (error) {
             console.error('Error creating post:', error);
@@ -91,6 +94,16 @@ export default function CreatePost() {
             content: value || '',
         }));
     };
+
+    useEffect(() => {
+        // Reset the form when the session changes
+        if (status === 'authenticated') {
+            setPostDraft((prev) => ({
+                ...prev,
+                author: session?.user?.name || '',
+            }));
+        }
+    }, [session, status]);
 
     const tableHeader =
         'align-text-top text-left p-4 whitespace-nowrap min-w-32 text-gray-200 hidden sm:table-cell';

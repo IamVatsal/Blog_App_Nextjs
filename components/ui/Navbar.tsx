@@ -2,10 +2,15 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useSession } from 'next-auth/react';
+import LoginButton from '@/components/auth/LoginButton';
+import LogoutButton from '@/components/auth/LogoutButton';
+import Image from 'next/image';
 
 export default function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
     const pathname = usePathname();
+    const { data: session, status } = useSession();
 
     const toggleMenu = () => {
         setIsOpen(!isOpen);
@@ -16,6 +21,7 @@ export default function Navbar() {
         { href: '/posts', label: 'Posts' },
         { href: '/create', label: 'Create Post' },
         { href: '/about', label: 'About' },
+        ...(status === 'authenticated' ? [{ href: '/myposts', label: 'My Posts' }] : [])
     ];
 
     const isActive = (path: string) => {
@@ -24,8 +30,11 @@ export default function Navbar() {
             : 'text-gray-300 hover:text-blue-400';
     };
 
+    // Get profile image directly from session
+    const profileImg = session?.user?.image || '/default-profile.png';
+
     return (
-        <nav className="">
+        <nav>
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between h-16">
                     <div className="flex items-center">
@@ -52,6 +61,26 @@ export default function Navbar() {
                                 {link.label}
                             </Link>
                         ))}
+
+                        {status === 'authenticated' ? (
+                            <div className="flex items-center gap-4">
+                                <span className="text-gray-300 text-sm">
+                                    Hi, {session.user?.name?.split(' ')[0]}
+                                </span>
+                                <div className="h-8 w-8 rounded-full overflow-hidden">
+                                    <Image
+                                        src={profileImg}
+                                        alt="Profile"
+                                        width={32}
+                                        height={32}
+                                        className="h-full w-full object-cover"
+                                    />
+                                </div>
+                                <LogoutButton />
+                            </div>
+                        ) : (
+                            <LoginButton />
+                        )}
                     </div>
 
                     {/* Mobile menu button */}
@@ -71,7 +100,6 @@ export default function Navbar() {
                                 fill="none"
                                 viewBox="0 0 24 24"
                                 stroke="currentColor"
-                                aria-hidden="true"
                             >
                                 <path
                                     strokeLinecap="round"
@@ -89,7 +117,6 @@ export default function Navbar() {
                                 fill="none"
                                 viewBox="0 0 24 24"
                                 stroke="currentColor"
-                                aria-hidden="true"
                             >
                                 <path
                                     strokeLinecap="round"
@@ -122,8 +149,35 @@ export default function Navbar() {
                             {link.label}
                         </Link>
                     ))}
+                    {status === 'authenticated' ? (
+                        <div className="px-3 py-2">
+                            <div className="flex items-center gap-3 mb-3">
+                                <div className="h-8 w-8 rounded-full overflow-hidden">
+                                    <Image
+                                        src={profileImg}
+                                        alt="Profile"
+                                        width={32}
+                                        height={32}
+                                        className="h-full w-full object-cover"
+                                    />
+                                </div>
+                                <div className="text-base text-gray-300">
+                                    {session.user?.email}
+                                </div>
+                            </div>
+                            <LogoutButton />
+                        </div>
+                    ) : (
+                        <div className="px-3 py-2">
+                            <LoginButton />
+                        </div>
+                    )}
                 </div>
             </div>
         </nav>
     );
+}
+
+export async function getServerSideProps() {
+    return [];
 }

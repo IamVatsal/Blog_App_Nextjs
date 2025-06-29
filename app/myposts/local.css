@@ -1,0 +1,18 @@
+/* Ensure form elements have proper contrast */
+.wmde-markdown {
+    background: none !important;
+}
+.w-md-editor,
+.w-md-editor-toolbar {
+    background: #fefefe !important;
+}
+/* Dark mode form elements */
+@media (prefers-color-scheme: dark) {
+    .wmde-markdown {
+        background: none !important;
+    }
+    .w-md-editor,
+    .w-md-editor-toolbar {
+        background: #191919 !important;
+    }
+}

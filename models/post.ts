@@ -4,6 +4,7 @@ export interface IPost extends Document {
     title: string;
     content: string;
     author?: string;
+    email?: string;
     status?: string;
     isPublished?: boolean;
     comments?: Schema.Types.ObjectId[]; // Array of ObjectIds for comments
@@ -19,6 +20,11 @@ const PostSchema = new Schema<IPost>(
             type: String,
             required: false,
             default: 'Anonymous', // Simple string default
+        },
+        email: {
+            type: String,
+            required: false,
+            default: 'clipsguy04@gmail.com',
         },
         status: {
             type: String,
