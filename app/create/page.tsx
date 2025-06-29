@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import './local.css';
-import  MDEditor  from '@uiw/react-md-editor'
+import MDEditor from '@uiw/react-md-editor';
 
 type Post = {
     _id?: string;
@@ -9,30 +9,20 @@ type Post = {
     content: string;
     author?: string;
     status?: string;
-    views?: number;
     isPublished?: boolean;
     createdAt?: Date;
     updatedAt?: Date;
 };
 
 export default function CreatePost() {
-    const [posts, setPosts] = useState<Post[]>([]);
     const [postDraft, setPostDraft] = useState<Post>({
         title: '',
         content: 'Write your content here...',
         author: '',
         status: 'draft',
-        views: 0,
         isPublished: false,
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
-
-    useEffect(() => {
-        fetch('/api/posts')
-            .then((res) => res.json())
-            .then((data) => setPosts(data))
-            .catch((error) => console.error('Error fetching posts:', error));
-    }, []);
 
     const handleInputChange = (
         e: React.ChangeEvent<
@@ -76,7 +66,7 @@ export default function CreatePost() {
             }
 
             const newPost = await response.json();
-            setPosts((prev) => [newPost, ...prev]);
+            console.log('Post created:', newPost);
 
             // Reset form
             setPostDraft({
@@ -84,7 +74,6 @@ export default function CreatePost() {
                 content: 'Write your content here...',
                 author: '',
                 status: 'draft',
-                views: 0,
                 isPublished: false,
             });
             alert('Post created successfully!');
@@ -103,27 +92,29 @@ export default function CreatePost() {
         }));
     };
 
-
     const tableHeader =
-        'align-text-top text-left p-4 whitespace-nowrap min-w-32 text-gray-300 hidden sm:table-cell';
+        'align-text-top text-left p-4 whitespace-nowrap min-w-32 text-gray-200 hidden sm:table-cell';
     const inputClass =
-        'border border-gray-500 rounded p-2 m-2 text-gray-900 bg-white focus:border-gray-700';
-
+        'border border-gray-600 rounded p-2 m-2 text-gray-100 bg-gray-700 focus:border-blue-400 focus:outline-none placeholder-gray-300';
     return (
-        <div className="max-w-4xl mx-auto p-3 sm:p-4 lg:p-6">
-            <h1 className="text-center text-4xl font-serif mt-5 mb-8">Create Post</h1>
+        <div className="max-w-4xl mx-auto p-3 sm:p-4">
+            <h1 className="text-center text-4xl font-serif mt-1 mb-4 text-gray-100">
+                Create Post
+            </h1>
             <form
                 onSubmit={handleSubmit}
-                className="border drop-shadow-lg rounded-lg p-2 pb-4 pr-4 sm:p-6  border-gray-700"
+                className="border drop-shadow-lg rounded-lg p-2 pb-4 pr-4 sm:p-6 border-gray-600 bg-gray-800"
                 suppressHydrationWarning
             >
                 <table className="w-full border-collapse">
                     <tbody>
                         <tr>
-                            <th className={`${tableHeader} w-1/4`}><label htmlFor='title'>Title :</label></th>
+                            <th className={`${tableHeader} w-1/4`}>
+                                <label htmlFor="title">Title :</label>
+                            </th>
                             <td className="p-2">
                                 <input
-                                    id='title'
+                                    id="title"
                                     type="text"
                                     name="title"
                                     value={postDraft.title}
@@ -136,22 +127,27 @@ export default function CreatePost() {
                         </tr>
                         <tr>
                             <th className={`${tableHeader} w-1/4`}>
-                                Content :
+                                <label htmlFor="content">Content :</label>
                             </th>
                             <td className="p-2">
                                 <MDEditor
+                                    id="content"
                                     value={postDraft.content}
                                     onChange={handleMDEditorChange}
-                                    // data-color-mode="light"
+                                    data-color-mode="dark"
                                     height={310}
-                                    className={`border border-gray-400 rounded p-2 m-2 text-gray-900 w-full`}
+                                    className={`border border-gray-600 rounded p-2 m-2 text-gray-100 w-full bg-gray-700`}
+                                    preview="edit"
                                 />
                             </td>
                         </tr>
                         <tr>
-                            <th className={`${tableHeader} w-1/4`}>Author :</th>
+                            <th className={`${tableHeader} w-1/4`}>
+                                <label htmlFor="author">Author :</label>
+                            </th>
                             <td className="p-2">
                                 <input
+                                    id="author"
                                     type="text"
                                     name="author"
                                     value={postDraft.author}
@@ -162,48 +158,60 @@ export default function CreatePost() {
                             </td>
                         </tr>
                         <tr>
-                            <th className={`${tableHeader} w-1/4`}>Status :</th>
+                            <th className={`${tableHeader} w-1/4`}>
+                                <label htmlFor="status">Status :</label>
+                            </th>
                             <td className="p-2">
                                 <select
+                                    id="status"
                                     name="status"
                                     className={`${inputClass} w-full`}
                                     value={postDraft.status}
                                     onChange={handleInputChange}
                                 >
-                                    <option value="draft">Draft</option>
-                                    <option value="published">Published</option>
-                                    <option value="archived">Archived</option>
+                                    <option
+                                        value="Select"
+                                        className="bg-gray-800 text-gray-100"
+                                        disabled
+                                    >
+                                        Select Status
+                                    </option>
+                                    <option
+                                        value="draft"
+                                        className="bg-gray-800 text-gray-100"
+                                    >
+                                        Draft
+                                    </option>
+                                    <option
+                                        value="published"
+                                        className="bg-gray-800 text-gray-100"
+                                    >
+                                        Published
+                                    </option>
+                                    <option
+                                        value="archived"
+                                        className="bg-gray-800 text-gray-100"
+                                    >
+                                        Archived
+                                    </option>
                                 </select>
                             </td>
                         </tr>
                         <tr>
-                            <th className={`${tableHeader} w-1/4`}>Views :</th>
-                            <td className="p-2">
-                                <input
-                                    type="number"
-                                    name="views"
-                                    value={postDraft.views}
-                                    onChange={handleInputChange}
-                                    className={`${inputClass} w-full`}
-                                    placeholder="Enter Number of Views"
-                                    min="0"
-                                />
-                            </td>
-                        </tr>
-                        <tr>
                             <th className={`${tableHeader} w-1/4`}>
-                                Published :
+                                <label htmlFor="isPublished">Published :</label>
                             </th>
                             <td className="p-2">
                                 <label className="flex items-center gap-2">
                                     <input
+                                        id="isPublished"
                                         type="checkbox"
                                         name="isPublished"
                                         checked={postDraft.isPublished}
                                         onChange={handleInputChange}
-                                        className="h-4 w-4 border-gray-300 rounded p-2 m-2 mr-0"
+                                        className="h-4 w-4 border-gray-600 bg-gray-700 rounded p-2 m-2 mr-0"
                                     />
-                                    <span className="text-gray-300">
+                                    <span className="text-gray-200">
                                         Yes, publish this post
                                     </span>
                                 </label>
@@ -214,7 +222,7 @@ export default function CreatePost() {
                                 <button
                                     type="submit"
                                     disabled={isSubmitting}
-                                    className="bg-blue-600 text-white rounded-lg px-6 py-3 font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                                    className="bg-blue-600 text-white rounded-lg px-6 py-3 font-medium hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 border border-gray-600"
                                 >
                                     {isSubmitting
                                         ? 'Creating...'
@@ -225,62 +233,6 @@ export default function CreatePost() {
                     </tbody>
                 </table>
             </form>
-
-            <div className="mt-8">
-                <h2 className="text-2xl font-bold mb-4">Recent Posts</h2>
-                {posts.length === 0 ? (
-                    <p className="text-gray-500">No posts available.</p>
-                ) : (
-                    <div className="space-y-4">
-                        {posts.map((post, index) => (
-                            <div
-                                key={post._id}
-                                className="border border-gray-700 p-4 rounded-lg shadow-sm"
-                            >
-                                <h3 className="text-lg font-bold mb-2 text-blue-600">
-                                    Post #{index + 1}
-                                </h3>
-                                <h4 className="text-xl font-semibold mb-2">
-                                    {post.title}
-                                </h4>
-                                <MDEditor.Markdown source={post.content} className='rounded w-full pt-1 pb-3 mb-3 mt-1' />
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm text-gray-400">
-                                    <p>
-                                        <strong>Author:</strong>{' '}
-                                        {post.author || 'Anonymous'}
-                                    </p>
-                                    <p>
-                                        <strong>Status:</strong>{' '}
-                                        {post.status || 'draft'}
-                                    </p>
-                                    <p>
-                                        <strong>Views:</strong>{' '}
-                                        {post.views || 0}
-                                    </p>
-                                    <p>
-                                        <strong>Published:</strong>{' '}
-                                        {post.isPublished ? 'Yes' : 'No'}
-                                    </p>
-                                </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-gray-400 mt-2">
-                                    <p>
-                                        <strong>Created:</strong>{' '}
-                                        {new Date(
-                                            post.createdAt || ''
-                                        ).toLocaleDateString()}
-                                    </p>
-                                    <p>
-                                        <strong>Updated:</strong>{' '}
-                                        {new Date(
-                                            post.updatedAt || ''
-                                        ).toLocaleDateString()}
-                                    </p>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </div>
         </div>
     );
 }

@@ -5,7 +5,6 @@ export interface IPost extends Document {
     content: string;
     author?: string;
     status?: string;
-    views?: number;
     isPublished?: boolean;
     comments?: Schema.Types.ObjectId[]; // Array of ObjectIds for comments
     createdAt: Date;
@@ -24,10 +23,6 @@ const PostSchema = new Schema<IPost>(
         status: {
             type: String,
             default: 'draft', // Default status
-        },
-        views: {
-            type: Number,
-            default: 0, // Default number
         },
         isPublished: {
             type: Boolean,
