@@ -16,7 +16,7 @@ A modern, responsive blogging platform built with Next.js 14, MongoDB, and NextA
 
 # /mypost
 
-![Blog App My Posts Screenshot](public/blog-app-myposts-screenshot.jpeg)
+![Blog App MyPosts Screenshot](public/blog-app-myposts-screenshot.jpeg)
 
 ## Features
 
