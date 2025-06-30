@@ -3,6 +3,7 @@ import Post from '@/components/ui/Post';
 import Link from 'next/link';
 import dbConnect from '@/lib/mongoose';
 import { Post as PostModel } from '@/models/post';
+import { Suspense } from 'react';
 
 type PostType = {
     _id?: string;
@@ -15,7 +16,41 @@ type PostType = {
     updatedAt?: Date;
 };
 
-export default async function Posts() {
+// Pagination controls component
+function PaginationControls({
+    currentPage,
+    totalPages,
+}: {
+    currentPage: number;
+    totalPages: number;
+}) {
+    return (
+        <div className="flex justify-center mt-8 gap-2">
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <Link
+                    key={page}
+                    href={`/posts?page=${page}`}
+                    className={`px-4 py-2 rounded-md transition-colors ${
+                        currentPage === page
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                    }`}
+                >
+                    {page}
+                </Link>
+            ))}
+        </div>
+    );
+}
+
+export default async function Posts({
+    searchParams,
+}: {
+    searchParams: { page?: string };
+}) {
+    const currentPage = searchParams.page ? parseInt(searchParams.page) : 1;
+    const pageSize = 5; // Number of posts per page
+
     try {
         // Check if MongoDB URI is defined
         if (!process.env.MONGODB_URI) {
@@ -27,9 +62,23 @@ export default async function Posts() {
         // Connect to the database
         await dbConnect();
 
-        // Fetch posts directly from the database
+        // Count total published posts for pagination
+        const totalPosts = await PostModel.countDocuments({
+            isPublished: true,
+        });
+        const totalPages = Math.ceil(totalPosts / pageSize);
+
+        // Ensure currentPage is within valid range
+        const validPage = Math.max(1, Math.min(currentPage, totalPages || 1));
+
+        // Calculate skip for pagination
+        const skip = (validPage - 1) * pageSize;
+
+        // Fetch posts with pagination
         const posts = (await PostModel.find({ isPublished: true })
             .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(pageSize)
             .lean()) as any[]; // Use lean() for better performance and cast to any[]
 
         // Convert MongoDB documents to plain objects and serialize _id
@@ -53,29 +102,47 @@ export default async function Posts() {
                     {serializedPosts.length === 0 ? (
                         <p className="text-gray-400">No posts available.</p>
                     ) : (
-                        <div className="space-y-4">
-                            {serializedPosts.map((post) => (
-                                <Link
-                                    key={post._id}
-                                    href={`/posts/${post._id}`}
-                                    className="block transform transition hover:scale-[1.01]"
+                        <>
+                            <div className="space-y-4">
+                                {serializedPosts.map((post) => (
+                                    <Link
+                                        key={post._id}
+                                        href={`/posts/${post._id}`}
+                                        className="block transform transition hover:scale-[1.01]"
+                                    >
+                                        <Post
+                                            _id={post._id}
+                                            title={post.title}
+                                            content={
+                                                post.content?.slice(0, 200) +
+                                                    '...' || 'No content'
+                                            }
+                                            author={post.author}
+                                            status={post.status}
+                                            isPublished={post.isPublished}
+                                            createdAt={post.createdAt}
+                                            updatedAt={post.updatedAt}
+                                        />
+                                    </Link>
+                                ))}
+                            </div>
+
+                            {/* Pagination Controls */}
+                            {totalPages > 1 && (
+                                <Suspense
+                                    fallback={
+                                        <div className="mt-8 text-center">
+                                            Loading pagination...
+                                        </div>
+                                    }
                                 >
-                                    <Post
-                                        _id={post._id}
-                                        title={post.title}
-                                        content={
-                                            post.content?.slice(0, 200) +
-                                                '...' || 'No content'
-                                        }
-                                        author={post.author}
-                                        status={post.status}
-                                        isPublished={post.isPublished}
-                                        createdAt={post.createdAt}
-                                        updatedAt={post.updatedAt}
+                                    <PaginationControls
+                                        currentPage={validPage}
+                                        totalPages={totalPages}
                                     />
-                                </Link>
-                            ))}
-                        </div>
+                                </Suspense>
+                            )}
+                        </>
                     )}
                 </div>
             </div>

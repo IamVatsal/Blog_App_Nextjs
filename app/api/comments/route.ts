@@ -3,24 +3,53 @@ import dbConnect from '@/lib/mongoose';
 import { Comment } from '@/models/comment';
 import { Post } from '@/models/post';
 
-// GET all comments or comments for a specific post
+// GET all comments or comments for a specific post with pagination
 export async function GET(req: NextRequest) {
     try {
         await dbConnect();
-        
+
         const { searchParams } = new URL(req.url);
         const postId = searchParams.get('postId');
-        
+        const page = parseInt(searchParams.get('page') || '1');
+        const limit = parseInt(searchParams.get('limit') || '5');
+
+        // Validate pagination params
+        const validPage = Math.max(1, page);
+        const validLimit = Math.min(20, Math.max(1, limit)); // Ensure limit is between 1 and 20
+
+        // Calculate skip value for pagination
+        const skip = (validPage - 1) * validLimit;
+
         let comments;
+        let totalComments;
+        let query = {};
+
         if (postId) {
-            // Get comments for a specific post
-            comments = await Comment.find({ postId }).sort({ createdAt: -1 });
-        } else {
-            // Get all comments
-            comments = await Comment.find().populate('postId', 'title').sort({ createdAt: -1 });
+            // Set query for specific post
+            query = { postId };
         }
-        
-        return NextResponse.json(comments);
+
+        // Count total comments for pagination
+        totalComments = await Comment.countDocuments(query);
+
+        // Get paginated comments
+        comments = await Comment.find(query)
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(validLimit);
+
+        // Calculate total pages
+        const totalPages = Math.ceil(totalComments / validLimit);
+
+        return NextResponse.json({
+            comments,
+            pagination: {
+                currentPage: validPage,
+                totalPages,
+                totalComments,
+                limit: validLimit,
+            },
+        });
     } catch (error) {
         console.error('Error fetching comments:', error);
         return NextResponse.json(

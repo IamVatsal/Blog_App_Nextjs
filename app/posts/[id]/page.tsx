@@ -1,92 +1,91 @@
-'use client';
-import { useEffect, useState, use } from 'react';
-import Comments from '@/components/ui/Comments';
-import { NextApiRequest } from 'next';
-import Post from '@/components/ui/Post';
-import { useSession } from 'next-auth/react';
-import PostForm from '@/components/ui/PostForm';
+import ServerComments from '@/components/ui/ServerComments';
 import { notFound } from 'next/navigation';
+import dbConnect from '@/lib/mongoose';
+import { Post as PostModel } from '@/models/post';
+import PostClientWrapper from '@/components/ui/PostClientWrapper';
 
-
-type IPost = {
-    _id?: string;
-    title: string;
-    content: string;
+// TypeScript interfaces
+interface PostDocument {
+    _id: {
+        toString: () => string;
+    };
+    title?: string;
+    content?: string;
     author?: string;
     email?: string;
     status?: string;
     isPublished?: boolean;
     createdAt?: Date;
     updatedAt?: Date;
-};
+}
 
-export default function CommentPage({
+export default async function PostPage({
     params,
+    searchParams,
 }: {
-    params: Promise<{ id: string }>;
+    params: { id: string };
+    searchParams: { commentPage?: string };
 }) {
-    // Unwrap params using React.use()
-    const { id } = use(params);
-    // Validate the ID format
- 
-    const { data: session, status } = useSession();
-    const [comments, setComments] = useState([]);
-    const [post, setPost] = useState<IPost>({
-        _id: '',
-        title: '',
-        content: '',
-        author: '',
-        email: '',
-        status: 'draft',
-        isPublished: false,
-    });
+    // Get the post ID from the URL
+    const { id } = params;
 
-    useEffect(() => {
-        // Fetch the post data when the component mounts
-        const fetchPost = async () => {
-            try {
-                const response = await fetch(`/api/posts/${id}`);
-                if (!response.ok) {
-                    throw new Error('Failed to fetch post');
-                }
-                const data = await response.json();
-                setPost(data);
-            } catch (error) {
-                console.error('Error fetching post:', error);
-            }
+    // Get comment page from search params (default to 1)
+    const commentPage = searchParams.commentPage
+        ? parseInt(searchParams.commentPage)
+        : 1;
+
+    if (!id || typeof id !== 'string') {
+        return notFound();
+    }
+
+    // Connect to MongoDB
+    await dbConnect();
+
+    // Fetch the post data
+    try {
+        const post = (await PostModel.findById(
+            id
+        ).lean()) as unknown as PostDocument;
+
+        if (!post) {
+            return notFound();
+        }
+
+        // Convert MongoDB document to serializable object
+        const serializedPost = {
+            _id: post._id.toString(),
+            title: post.title || '',
+            content: post.content || '',
+            author: post.author || 'Anonymous',
+            email: post.email || '',
+            status: post.status || 'draft',
+            isPublished: post.isPublished || false,
+            createdAt: post.createdAt
+                ? new Date(post.createdAt).toISOString()
+                : '',
+            updatedAt: post.updatedAt
+                ? new Date(post.updatedAt).toISOString()
+                : '',
         };
-        fetchPost();
-    }, [id]);
 
-    return (
-        <div className="max-w-4xl mx-auto p-3 sm:p-4">
-            <h1 className="text-center text-4xl font-serif mt-1 mb-8">
-                Post Details
-            </h1>
-            {post.email == session?.user?.email ? (
-                <PostForm
-                    _id={post._id}
-                    title={post.title}
-                    content={post.content}
-                    author={post.author}
-                    status={post.status}
-                    isPublished={post.isPublished}
-                    createdAt={post.createdAt}
-                    updatedAt={post.updatedAt}
+        return (
+            <div className="max-w-4xl mx-auto p-3 sm:p-4">
+                <h1 className="text-center text-4xl font-serif mt-1 mb-8">
+                    Post Details
+                </h1>
+
+                {/* PostClientWrapper will handle showing the edit form or regular post based on user authentication */}
+                <PostClientWrapper post={serializedPost} />
+
+                {/* Use server-side pre-loaded comments with pagination */}
+                <ServerComments
+                    postId={serializedPost._id}
+                    page={commentPage}
                 />
-            ) : (
-                <Post
-                    _id={post._id}
-                    title={post.title}
-                    content={post.content}
-                    author={post.author}
-                    status={post.status}
-                    isPublished={post.isPublished}
-                    createdAt={post.createdAt}
-                    updatedAt={post.updatedAt}
-                />
-            )}
-            <Comments postId={post._id || ''}></Comments>
-        </div>
-    );
+            </div>
+        );
+    } catch (error) {
+        console.error('Error fetching post:', error);
+        return notFound();
+    }
 }
