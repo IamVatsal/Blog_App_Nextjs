@@ -1,19 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongoose';
 import { Post } from '@/models/post';
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-
+import { auth } from '@/app/auth';
 
 export async function GET(req: NextRequest) {
     await dbConnect();
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     if (!session) {
-        return NextResponse.json(
-            { error: 'Unauthorized' },
-            { status: 401 }
-        );
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    const posts = await Post.find({email: session.user?.email}).sort({ createdAt: -1 });
+    const posts = await Post.find({ email: session.user?.email }).sort({
+        createdAt: -1,
+    });
     return NextResponse.json(posts);
 }

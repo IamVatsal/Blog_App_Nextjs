@@ -11,6 +11,7 @@ export default function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
     const pathname = usePathname();
     const { data: session, status } = useSession();
+    const [imgError, setImgError] = useState(false);
 
     const toggleMenu = () => {
         setIsOpen(!isOpen);
@@ -21,7 +22,9 @@ export default function Navbar() {
         { href: '/posts', label: 'Posts' },
         { href: '/create', label: 'Create Post' },
         { href: '/about', label: 'About' },
-        ...(status === 'authenticated' ? [{ href: '/myposts', label: 'My Posts' }] : [])
+        ...(status === 'authenticated'
+            ? [{ href: '/myposts', label: 'My Posts' }]
+            : []),
     ];
 
     const isActive = (path: string) => {
@@ -30,8 +33,11 @@ export default function Navbar() {
             : 'text-gray-300 hover:text-blue-400';
     };
 
-    // Get profile image directly from session
-    const profileImg = session?.user?.image || '/default-profile.png';
+    // Get profile image with fallback and error handling
+    const profileImg =
+        imgError || !session?.user?.image
+            ? '/default-profile.png'
+            : session.user.image;
 
     return (
         <nav>
@@ -65,7 +71,12 @@ export default function Navbar() {
                         {status === 'authenticated' ? (
                             <div className="flex items-center gap-4">
                                 <span className="text-gray-300 text-sm">
-                                    Hi, {session.user?.name?.split(' ')[0]}
+                                    Hi,{' '}
+                                    {
+                                        (session?.user?.name || 'User')?.split(
+                                            ' '
+                                        )[0]
+                                    }
                                 </span>
                                 <div className="h-8 w-8 rounded-full overflow-hidden">
                                     <Image
@@ -74,6 +85,7 @@ export default function Navbar() {
                                         width={32}
                                         height={32}
                                         className="h-full w-full object-cover"
+                                        onError={() => setImgError(true)}
                                     />
                                 </div>
                                 <LogoutButton />
@@ -159,10 +171,12 @@ export default function Navbar() {
                                         width={32}
                                         height={32}
                                         className="h-full w-full object-cover"
+                                        onError={() => setImgError(true)}
                                     />
                                 </div>
                                 <div className="text-base text-gray-300">
-                                    {session.user?.email}
+                                    {session?.user?.email ||
+                                        'User email not available'}
                                 </div>
                             </div>
                             <LogoutButton />
@@ -176,8 +190,4 @@ export default function Navbar() {
             </div>
         </nav>
     );
-}
-
-export async function getServerSideProps() {
-    return [];
 }

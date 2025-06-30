@@ -2,8 +2,7 @@ import { NextResponse, NextRequest } from 'next/server';
 import dbConnect from '@/lib/mongoose';
 import { Post } from '@/models/post';
 import { isValidObjectId } from 'mongoose';
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { auth } from '@/app/auth';
 
 export async function GET(
     req: NextRequest,
@@ -45,7 +44,7 @@ export async function DELETE(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const session = await getServerSession(authOptions);
+        const session = await auth();
         const { id } = await params;
 
         // Validate ObjectId format
@@ -103,14 +102,14 @@ export async function PUT(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const session = await getServerSession(authOptions);
+        const session = await auth();
         if (!session) {
             return NextResponse.json(
                 { error: 'Unauthorized' },
                 { status: 401 }
             );
         }
-        
+
         const { id } = await params;
         // Validate ObjectId format
         if (!isValidObjectId(id)) {
@@ -122,7 +121,7 @@ export async function PUT(
 
         await dbConnect();
         const body = await req.json();
-         const post = await Post.findById(id);
+        const post = await Post.findById(id);
         if (!post) {
             return NextResponse.json(
                 { error: 'Post not found' },
