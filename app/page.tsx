@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 
 export default function Home() {
@@ -109,7 +108,7 @@ export default function Home() {
                   <div className="mt-4">
                     <h3 className="text-xl font-semibold text-gray-100 text-center">Create an Account</h3>
                     <p className="mt-3 text-base text-gray-300 text-center">
-                      Or post anonymously - it's your choice! Our platform gives you the freedom to decide.
+                      Or post anonymously - it&apos;s your choice! Our platform gives you the freedom to decide.
                     </p>
                   </div>
                 </div>

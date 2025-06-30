@@ -1,8 +1,7 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import CommentForm from './CommentForm';
 import CommentItem from './CommentItem';
-import Link from 'next/link';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 
 interface Comment {
@@ -39,12 +38,42 @@ export default function Comments({
     const pathname = usePathname();
     const searchParams = useSearchParams();
 
+    // Wrap fetchComments in useCallback
+    const fetchComments = useCallback(
+        async (page: number) => {
+            setIsLoading(true);
+            try {
+                const response = await fetch(
+                    `/api/comments?postId=${postId}&page=${page}&limit=5`
+                );
+
+                if (response.ok) {
+                    const data = await response.json();
+                    setComments(data.comments);
+                    setTotalPages(data.pagination.totalPages);
+                    setTotalComments(data.pagination.totalComments);
+                }
+            } catch (error) {
+                console.error('Error fetching comments:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        },
+        [postId]
+    );
+
     // If no initial comments were provided or page changes, fetch them client-side
     useEffect(() => {
         if (!initialComments.length || currentPage !== initialPage) {
             fetchComments(currentPage);
         }
-    }, [currentPage, initialComments.length, initialPage, postId]);
+    }, [
+        currentPage,
+        initialComments.length,
+        initialPage,
+        postId,
+        fetchComments,
+    ]);
 
     // Update URL when page changes
     useEffect(() => {
@@ -59,26 +88,6 @@ export default function Comments({
         const newUrl = `${pathname}?${params.toString()}`;
         router.replace(newUrl, { scroll: false });
     }, [currentPage, pathname, router, searchParams]);
-
-    const fetchComments = async (page: number) => {
-        setIsLoading(true);
-        try {
-            const response = await fetch(
-                `/api/comments?postId=${postId}&page=${page}&limit=5`
-            );
-
-            if (response.ok) {
-                const data = await response.json();
-                setComments(data.comments);
-                setTotalPages(data.pagination.totalPages);
-                setTotalComments(data.pagination.totalComments);
-            }
-        } catch (error) {
-            console.error('Error fetching comments:', error);
-        } finally {
-            setIsLoading(false);
-        }
-    };
 
     // Handle new comment added by CommentForm component
     const handleCommentAdded = (newComment: Comment) => {

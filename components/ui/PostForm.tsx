@@ -67,7 +67,6 @@ export default function PostForm(post: Post) {
                 throw new Error('Failed to create post');
             }
 
-
             // Reset form
             setPostDraft({
                 title: postDraft.title || '',
@@ -135,7 +134,7 @@ export default function PostForm(post: Post) {
     };
 
     useEffect(() => {
-        // Reset the form when the session changes
+        // Reset the form when the session or post props change
         if (status === 'authenticated') {
             setPostDraft((prev) => ({
                 ...prev,
@@ -146,7 +145,15 @@ export default function PostForm(post: Post) {
                 isPublished: post.isPublished || false,
             }));
         }
-    }, [session, status]);
+    }, [
+        session,
+        status,
+        post.title,
+        post.content,
+        post.author,
+        post.status,
+        post.isPublished,
+    ]);
 
     const tableHeader =
         'align-text-top text-left p-4 whitespace-nowrap min-w-32 text-gray-200 hidden sm:table-cell';
@@ -270,7 +277,7 @@ export default function PostForm(post: Post) {
                     </tr>
                     <tr>
                         <td colSpan={2} className="text-right pt-6">
-                            <div className='flex justify-end gap-4'>
+                            <div className="flex justify-end gap-4">
                                 <button
                                     type="submit"
                                     disabled={isSubmitting}

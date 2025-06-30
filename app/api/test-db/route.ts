@@ -1,12 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongoose';
 import { User } from '@/models/user';
 
-/**
- * This is a test endpoint to validate database connectivity and model loading.
- * You can remove it once you've confirmed everything works.
- */
-export async function GET(req: NextRequest) {
+export async function GET() {
     try {
         console.log('Testing database connection...');
 

@@ -20,8 +20,6 @@ export async function GET(req: NextRequest) {
         // Calculate skip value for pagination
         const skip = (validPage - 1) * validLimit;
 
-        let comments;
-        let totalComments;
         let query = {};
 
         if (postId) {
@@ -30,10 +28,10 @@ export async function GET(req: NextRequest) {
         }
 
         // Count total comments for pagination
-        totalComments = await Comment.countDocuments(query);
+        const totalComments = await Comment.countDocuments(query);
 
         // Get paginated comments
-        comments = await Comment.find(query)
+        const comments = await Comment.find(query)
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(validLimit);

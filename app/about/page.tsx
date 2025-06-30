@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import Link from 'next/link';
 
 export default function AboutPage() {
@@ -27,8 +26,8 @@ export default function AboutPage() {
                         Vatsal
                     </h2>
                     <p className="text-gray-300 mb-4 leading-relaxed">
-                        Hey there! I’m Vatsal Patel, a 20-year-old Computer
-                        Engineering student from Gujarat, India. I’m passionate
+                        Hey there! I&apos;m Vatsal Patel, a 20-year-old Computer
+                        Engineering student from Gujarat, India. I&apos;m passionate
                         about creating useful and innovative software that
                         brings real value to people. I love turning ideas into
                         working products using modern tools and a
@@ -37,10 +36,10 @@ export default function AboutPage() {
                     <p className="text-gray-300 mb-6 leading-relaxed">
                         I specialize in full-stack web development and enjoy
                         exploring everything from system design to DevOps.
-                        Inspired by the spirit of innovation and learning, I'm
+                        Inspired by the spirit of innovation and learning, I&apos;m
                         constantly experimenting, building, and leveling up.
-                        Whether it's a blog platform, or a hardware prototype,
-                        I’m all in.
+                        Whether it&apos;s a blog platform, or a hardware prototype,
+                        I&apos;m all in.
                     </p>
 
                     {/* Skills */}
@@ -152,7 +151,7 @@ export default function AboutPage() {
                     <p>
                         This blog platform was crafted with a focus on modern
                         architecture and performance optimization. It leverages
-                        Next.js 14's React Server Components for faster page
+                        Next.js 14&apos;s React Server Components for faster page
                         loads and reduced client-side JavaScript, creating a
                         seamless user experience.
                     </p>
@@ -247,7 +246,7 @@ export default function AboutPage() {
 
             {/* Contact/CTA Section */}
             <div className="bg-gradient-to-r from-blue-900/50 to-purple-900/50 p-8 rounded-xl text-center">
-                <h2 className="text-2xl font-bold mb-4">Let's Connect</h2>
+                <h2 className="text-2xl font-bold mb-4">Let&apos;s Connect</h2>
                 <p className="text-gray-300 mb-6 max-w-2xl mx-auto">
                     Got an idea, feedback, or opportunity? Feel free to reach
                     out or explore my work further.

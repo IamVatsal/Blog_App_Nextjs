@@ -8,7 +8,7 @@ export default function PostNotFound() {
       <h2 className="text-4xl font-extrabold mb-4 text-blue-400">404</h2>
       <h1 className="text-2xl font-bold mb-4 text-center">Post Not Found</h1>
       <p className="text-gray-300 mb-8 text-center max-w-md">
-        The post you're looking for doesn't exist or has been removed.
+        The post you&apos;re looking for doesn&apos;t exist or has been removed.
       </p>
       <div className="flex flex-col sm:flex-row gap-4">
         <Link

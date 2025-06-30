@@ -24,14 +24,17 @@ export default async function PostPage({
     searchParams,
 }: {
     params: { id: string };
-    searchParams: { commentPage?: string };
+    searchParams?: Record<string, string | string[] | undefined>;
 }) {
     // Get the post ID from the URL
     const { id } = params;
 
     // Get comment page from search params (default to 1)
-    const commentPage = searchParams.commentPage
-        ? parseInt(searchParams.commentPage)
+    const rawPage = searchParams?.commentPage;
+    const commentPage = Array.isArray(rawPage)
+        ? parseInt(rawPage[0]!, 10)
+        : rawPage
+        ? parseInt(rawPage, 10)
         : 1;
 
     if (!id || typeof id !== 'string') {
