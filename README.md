@@ -201,7 +201,6 @@ blog-app/
 -   `text`: Comment text
 -   `name`: Commenter's name
 -   `postId`: Reference to post
--   `likes`: Number of likes
 -   `createdAt`: Timestamp of creation
 -   `updatedAt`: Timestamp of last update
 
