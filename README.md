@@ -105,7 +105,7 @@ npm install
 
 ```
 # MongoDB
-MONGODB_URI=mongodb+srv://yourusername:yourpassword@cluster0.mongodb.net/blog-app
+MONGODB_URI=your-mongodb-connection=url
 
 # NextAuth
 NEXTAUTH_URL=http://localhost:3000
